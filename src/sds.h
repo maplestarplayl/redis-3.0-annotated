@@ -34,7 +34,7 @@
 /*
  * 最大预分配长度
  */
-#define SDS_MAX_PREALLOC (1024*1024)
+#define SDS_MAX_PREALLOC (1024 * 1024)
 
 #include <sys/types.h>
 #include <stdarg.h>
@@ -47,8 +47,9 @@ typedef char *sds;
 /*
  * 保存字符串对象的结构
  */
-struct sdshdr {
-    
+struct sdshdr
+{
+
     // buf 中已占用空间的长度
     int len;
 
@@ -64,9 +65,11 @@ struct sdshdr {
  *
  * T = O(1)
  */
-static inline size_t sdslen(const sds s) {
-    struct sdshdr *sh = (void*)(s-(sizeof(struct sdshdr)));
-    return sh->len;
+
+static inline size_t sdslen(const sds s)
+{
+    struct sdshdr *sh = (void *)(s - (sizeof(struct sdshdr))); // 通过将指针减去sdshdr结构体的大小来获取该结构体的指针（即将指针移动一定距离）
+    return sh->len;                                            // 这样就实现了字符串本身（buff数组）和 sdshdr该结构体的互相转换
 }
 
 /*
@@ -74,16 +77,20 @@ static inline size_t sdslen(const sds s) {
  *
  * T = O(1)
  */
-static inline size_t sdsavail(const sds s) {
-    struct sdshdr *sh = (void*)(s-(sizeof(struct sdshdr)));
+static inline size_t sdsavail(const sds s)
+{
+    struct sdshdr *sh = (void *)(s - (sizeof(struct sdshdr)));
     return sh->free;
 }
+// 传入的参数基本都是sds而非sdshdr，因为sdshdr结构体是为了方便操作而架构的（用空间换时间），所以对sds参数直接
 
-sds sdsnewlen(const void *init, size_t initlen);
+// 根据传入的字符串指针来创建sds
+sds sdsnewlen(const void *init, size_t initlen); // 该函数被设计为其他创建字符串函数的底层实现，因此参数设计非常灵活，用来适配多样的需求
 sds sdsnew(const char *init);
 sds sdsempty(void);
 size_t sdslen(const sds s);
 sds sdsdup(const sds s);
+// 以上函数的实现均依赖于sdsnewlen()
 void sdsfree(sds s);
 size_t sdsavail(const sds s);
 sds sdsgrowzero(sds s, size_t len);
